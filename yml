@@ -1,12 +1,21 @@
+#add a stage label to begin a deployment workflow to your staging environment.
 on:
   pull_request:
     types: [labeled]
+
+# Control execution with a job conditional
+
 if: contains(github.event.pull_request.labels.*.name, 'stage')
+
+# Store credentials with GitHub Secrets
 steps:
       - name: "Login via Azure CLI"
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+# Deploy to Microsoft Azure using GitHub Actions
+
 Deploy-to-Azure:
     runs-on: ubuntu-latest
     needs: Build-Docker-Image
@@ -32,3 +41,25 @@ Deploy-to-Azure:
       - name: Azure logout
         run: |
           az logout
+
+##      Create and delete Azure resources by using GitHub Actions    
+
+    jobs:
+  set-up-azure-resources:
+    runs-on: ubuntu-latest
+
+    if: contains(github.event.pull_request.labels.*.name, 'spin up environment')
+
+    ...
+
+  destroy-azure-resources:
+    runs-on: ubuntu-latest
+
+    if: contains(github.event.pull_request.labels.*.name, 'destroy environment')
+
+    ...
+## 
+
+
+    
+    
